@@ -1,0 +1,43 @@
+
+// Paste into a Screen (Home)
+Home As screen:
+  Fill: =RGBA(245,245,245,1)
+  Items:
+    TopNav As NavBar:
+      Width: =Parent.Width
+    KPIRow As groupContainer.horizontalAutoLayoutContainer:
+      Y: =64
+      Items:
+        Card1 As groupContainer.verticalAutoLayoutContainer:
+          Width: =Parent.Width/3-24
+          Height: =120
+          Fill: =Color.White
+          Items:
+            Title As Label:
+              Text: ="New Transactions"
+            Value As Label:
+              Text: =CountRows(Filter(bkg_transaction, bkg_status = "New"))
+              Size: =28
+              Weight: =FontWeight.Semibold
+        Card2 As groupContainer.verticalAutoLayoutContainer:
+          Width: =Parent.Width/3-24
+          Height: =120
+          Fill: =Color.White
+          Items:
+            Title As Label:
+              Text: ="Approvals Pending"
+            Value As Label:
+              Text: =CountRows(Filter(bkg_transaction, bkg_status = "Pending Approval"))
+              Size: =28
+              Weight: =FontWeight.Semibold
+        Card3 As groupContainer.verticalAutoLayoutContainer:
+          Width: =Parent.Width/3-24
+          Height: =120
+          Fill: =Color.White
+          Items:
+            Title As Label:
+              Text: ="Fraud Alerts"
+            Value As Label:
+              Text: =CountRows(Filter(bkg_transaction, bkg_isfraudrisk))
+              Size: =28
+              Weight: =FontWeight.Semibold

@@ -1,0 +1,33 @@
+
+// Paste into a Screen (Transactions)
+Transactions As screen:
+  OnVisible: =Set(locTxnPage, 0)
+  Items:
+    TopNav As NavBar:
+      Width: =Parent.Width
+    Filters As groupContainer.horizontalAutoLayoutContainer:
+      Items:
+        TxtSearch As TextInput:
+          HintText: ="Search by account or customer"
+        CboStatus As ComboBox:
+          Items: =["New","Pending Approval","Posted","Rejected"]
+    Grid As Gallery:
+      Items: =FirstN(Skip(SortByColumns(Filter(bkg_transaction, IsBlank(CboStatus.Selected.Value) || bkg_status = CboStatus.Selected.Value), "bkg_txndate", Descending), locTxnPage*50), 50)
+      TemplateSize: =84
+      Fields:
+        Amount As Label:
+          Text: =Text(ThisItem.bkg_amount, "[$-en-US]€ #,##0.00")
+        Currency As Label:
+          Text: =ThisItem.bkg_currency
+        Fraud As Icon:
+          Icon: =If(ThisItem.bkg_isfraudrisk, Icon.Warning, Icon.Check)
+          Color: =If(ThisItem.bkg_isfraudrisk, Color.Red, Color.Green)
+    Pager As groupContainer.horizontalAutoLayoutContainer:
+      Items:
+        Prev As Button:
+          Text: ="Prev"
+          DisplayMode: =If(locTxnPage>0, DisplayMode.Edit, DisplayMode.Disabled)
+          OnSelect: =Set(locTxnPage, Max(0, locTxnPage-1))
+        Next As Button:
+          Text: ="Next"
+          OnSelect: =Set(locTxnPage, locTxnPage+1)

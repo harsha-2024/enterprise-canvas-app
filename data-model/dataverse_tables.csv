@@ -1,0 +1,6 @@
+table_logical_name,display_name,primary_name,columns
+bkg_account,Bank Account,bkg_name,"bkg_accountnumber (Text, AltKey); bkg_customertype (Choice); bkg_riskrating (Choice); bkg_creditscore (Whole); bkg_monthlyincome (Currency); ownerid (Owner)"
+bkg_customer,Customer,bkg_fullname,bkg_firstname (Text); bkg_lastname (Text); bkg_email (Text); bkg_phone (Text); bkg_kycstatus (Choice); bkg_pepflag (Boolean)
+bkg_transaction,Transaction,bkg_name,bkg_amount (Currency); bkg_currency (Text); bkg_direction (Choice); bkg_type (Choice); bkg_status (Choice); bkg_txndate (DateTime); bkg_accountid (Lookup:bkg_account); bkg_customerid (Lookup:bkg_customer); bkg_fraudscore (Decimal); bkg_isfraudrisk (Boolean)
+bkg_case,Case,bkg_title,bkg_description (Multiline); bkg_priority (Choice); bkg_status (Choice); bkg_ownerid (Owner); bkg_customerid (Lookup:bkg_customer)
+bkg_plugincache,Plugin Cache,bkg_name,"bkg_name (Text, AltKey); bkg_expirationon (DateTime)"

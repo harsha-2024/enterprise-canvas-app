@@ -1,0 +1,26 @@
+
+// Paste in a Component (NavBar) in Code View
+NavBar As groupContainer.horizontalAutoLayoutContainer:
+  Width: =Parent.Width
+  Height: =56
+  Fill: =RGBA(32,32,32,1)
+  PaddingLeft: =16
+  PaddingRight: =16
+  Items:
+    Logo As Image:
+      Image: =appLogo
+      Width: =120
+      Height: =40
+    Title As Label:
+      Text: ="Banking Ops"
+      Color: =Color.White
+      Size: =18
+      Weight: =FontWeight.Semibold
+    Spacer As rectangle:
+      Width: =Max(1, Parent.Width-Title.Width-Logo.Width-User.Width-64)
+      Height: =1
+      Fill: =RGBA(0,0,0,0)
+    User As Label:
+      Text: =User().FullName
+      Color: =Color.White
+      Size: =14

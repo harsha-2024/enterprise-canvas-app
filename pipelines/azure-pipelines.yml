@@ -1,0 +1,27 @@
+
+# Azure DevOps pipeline (solution-centric ALM)
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+- task: PowerShell@2
+  displayName: 'Install Power Platform CLI'
+  inputs:
+    targetType: 'inline'
+    script: |
+      dotnet tool install --global Microsoft.PowerApps.CLI.Tool --version 1.*
+      echo "##vso[task.prependpath]%USERPROFILE%/.dotnet/tools"
+
+# Typical solution export/import. For Canvas app source, prefer Git Integration.
+- task: PowerShell@2
+  displayName: 'Pack & Import Solution (example)'
+  inputs:
+    targetType: 'inline'
+    script: |
+      pac auth create --url $(DATAVERSE_URL) --tenant $(AZURE_TENANT_ID) --applicationId $(AZURE_APP_ID) --clientSecret $(AZURE_APP_SECRET)
+      pac auth select --index 0
+      # Example: Import a pre-packed managed solution
+      pac solution import --path .\dist\BankingOps_Managed.zip --publish-changes true

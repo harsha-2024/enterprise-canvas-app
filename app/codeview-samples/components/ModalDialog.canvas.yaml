@@ -1,0 +1,34 @@
+
+// Paste in a Component (ModalDialog)
+ModalDialog As groupContainer.verticalAutoLayoutContainer:
+  Visible: =locShowModal
+  Fill: =RGBA(0,0,0,0.4)
+  Width: =Parent.Width
+  Height: =Parent.Height
+  Items:
+    Card As groupContainer.verticalAutoLayoutContainer:
+      Width: =Min(640, Parent.Width-64)
+      Height: =Min(420, Parent.Height-64)
+      X: =(Parent.Width-Self.Width)/2
+      Y: =(Parent.Height-Self.Height)/2
+      Fill: =Color.White
+      RadiusTopLeft: =12
+      RadiusTopRight: =12
+      RadiusBottomLeft: =12
+      RadiusBottomRight: =12
+      Items:
+        Title As Label:
+          Text: =coalesce(locModalTitle, "Confirm")
+          Size: =20
+          Weight: =FontWeight.Semibold
+        Body As Label:
+          Text: =coalesce(locModalBody, "Are you sure?")
+          Size: =14
+        Buttons As groupContainer.horizontalAutoLayoutContainer:
+          Items:
+            Cancel As Button:
+              Text: ="Cancel"
+              OnSelect: =Set(locShowModal,false)
+            OK As Button:
+              Text: =coalesce(locModalOkText,"OK")
+              OnSelect: =If(!IsBlank(locModalOk), locModalOk())

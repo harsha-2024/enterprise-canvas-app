@@ -1,0 +1,22 @@
+
+// Paste into a Screen (Customers)
+Customers As screen:
+  OnVisible: =If(IsEmpty(colCustomers), ClearCollect(colCustomers, FirstN(SortByColumns(bkg_customer, "bkg_fullname"), 500)))
+  Items:
+    TopNav As NavBar:
+      Width: =Parent.Width
+    SearchBox As TextInput:
+      Default: =locCustomerSearch
+      HintText: ="Search customer"
+      OnChange: =Set(locCustomerSearch, Self.Text)
+    Results As Gallery:
+      Items: =If(!IsBlank(locCustomerSearch), Filter(bkg_customer, StartsWith(bkg_fullname, locCustomerSearch)), colCustomers)
+      TemplateSize: =72
+      Fields:
+        Name As Label:
+          Text: =ThisItem.bkg_fullname
+        Email As Label:
+          Text: =ThisItem.bkg_email
+        KYC As Badge:
+          Text: =Text(ThisItem.bkg_kycstatus)
+          Color: =If(ThisItem.bkg_kycstatus = "Passed", Color.Green, Color.Red)
