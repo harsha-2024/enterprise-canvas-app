@@ -1,0 +1,89 @@
+{
+  "name": "PA_Fraud_CheckTxn",
+  "summary": "Calls fraud scoring API and returns score and isRisk",
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2019-05-01/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "triggers": {
+      "manual": {
+        "type": "Request",
+        "kind": "PowerApp",
+        "inputs": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "TransactionId": {
+                "type": "string"
+              },
+              "Amount": {
+                "type": "number"
+              },
+              "Currency": {
+                "type": "string"
+              },
+              "CustomerId": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "TransactionId",
+              "Amount",
+              "Currency"
+            ]
+          }
+        }
+      }
+    },
+    "actions": {
+      "HTTP_Fraud": {
+        "type": "Http",
+        "inputs": {
+          "method": "POST",
+          "uri": "@{environmentVariables('pp_FraudApiUrl')}",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "body": {
+            "transactionId": "@{triggerBody()['TransactionId']}",
+            "amount": "@{triggerBody()['Amount']}",
+            "currency": "@{triggerBody()['Currency']}",
+            "customerId": "@{triggerBody()['CustomerId']}"
+          }
+        }
+      },
+      "Parse": {
+        "type": "Compose",
+        "inputs": "@{body('HTTP_Fraud')}"
+      },
+      "Respond_to_a_PowerApp_or_flow": {
+        "type": "RespondToPowerApp",
+        "kind": "PowerApp",
+        "inputs": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "Score": {
+                "type": "number"
+              },
+              "IsRisk": {
+                "type": "boolean"
+              }
+            }
+          },
+          "body": {
+            "Score": "@{coalesce(body('HTTP_Fraud')?['score'], 0)}",
+            "IsRisk": "@{greaterOrEquals(coalesce(body('HTTP_Fraud')?['score'], 0), 0.8)}"
+          }
+        },
+        "runAfter": {
+          "HTTP_Fraud": [
+            "Succeeded"
+          ]
+        }
+      }
+    },
+    "outputs": {}
+  },
+  "connectionReferences": {}
+}

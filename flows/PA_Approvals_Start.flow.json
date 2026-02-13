@@ -1,0 +1,90 @@
+{
+  "name": "PA_Approvals_Start",
+  "summary": "Starts an approval for a transaction and returns outcome",
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2019-05-01/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "triggers": {
+      "manual": {
+        "type": "Request",
+        "kind": "PowerApp",
+        "inputs": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "TransactionId": {
+                "type": "string"
+              },
+              "Decision": {
+                "type": "string"
+              },
+              "RequestedBy": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "TransactionId",
+              "Decision"
+            ]
+          }
+        }
+      }
+    },
+    "actions": {
+      "Start_and_wait_for_an_approval": {
+        "type": "OpenApiConnection",
+        "inputs": {
+          "host": {
+            "connectionName": "approvals",
+            "operationId": "StartAndWaitForAnApproval",
+            "apiId": "/providers/Microsoft.PowerApps/apis/shared_approvals"
+          },
+          "parameters": {
+            "approvalType": "ApproveReject",
+            "StartAndWaitForAnApprovalParameterWebhookApprovalCreationInput": {
+              "title": "Transaction Approval",
+              "assignedTo": "@{triggerBody()['RequestedBy']}",
+              "details": "Please review transaction @{triggerBody()['TransactionId']} and decision suggestion @{triggerBody()['Decision']}"
+            }
+          }
+        },
+        "runAfter": {}
+      },
+      "Respond_to_a_PowerApp_or_flow": {
+        "type": "RespondToPowerApp",
+        "kind": "PowerApp",
+        "inputs": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "Outcome": {
+                "type": "string"
+              },
+              "Comments": {
+                "type": "string"
+              }
+            }
+          },
+          "body": {
+            "Outcome": "@{outputs('Start_and_wait_for_an_approval')?['body/outcome']}",
+            "Comments": "@{outputs('Start_and_wait_for_an_approval')?['body/comments']}"
+          }
+        },
+        "runAfter": {
+          "Start_and_wait_for_an_approval": [
+            "Succeeded"
+          ]
+        }
+      }
+    },
+    "outputs": {}
+  },
+  "connectionReferences": {
+    "approvals": {
+      "connectionName": "shared-approvals",
+      "source": "Invoker",
+      "id": "/providers/Microsoft.PowerApps/apis/shared_approvals"
+    }
+  }
+}

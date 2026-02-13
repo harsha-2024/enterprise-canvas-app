@@ -1,0 +1,58 @@
+
+// Paste into a Screen (Approvals)
+Approvals As screen:
+  OnVisible: =Concurrent(
+    ClearCollect(colMyApprovals, Filter(bkg_transaction, bkg_status = "Pending Approval")),
+    Set(locAprvPage, 0)
+  )
+  Items:
+    TopNav As NavBar:
+      Width: =Parent.Width
+    Filters As groupContainer.horizontalAutoLayoutContainer:
+      Items:
+        TxtSearch As TextInput:
+          HintText: ="Search account/customer"
+          OnChange: =Set(locAprvSearch, Self.Text)
+    Grid As Gallery:
+      Items: =FirstN(Skip(
+                SortByColumns(
+                  If(!IsBlank(locAprvSearch),
+                     Filter(bkg_transaction,
+                       StartsWith(bkg_name, locAprvSearch) || StartsWith(bkg_currency, locAprvSearch)
+                     ),
+                     Filter(bkg_transaction, bkg_status = "Pending Approval")
+                  ),
+                  "bkg_txndate", Descending
+                ),
+                locAprvPage*50), 50)
+      TemplateSize: =96
+      Fields:
+        Title As Label:
+          Text: =ThisItem.bkg_name
+          Weight: =FontWeight.Semibold
+        Amount As Label:
+          Text: =Text(ThisItem.bkg_amount, "[$-en-US]€ #,##0.00")
+        Who As Label:
+          Text: =If(!IsBlank(ThisItem.bkg_customerid), ThisItem.bkg_customerid.bkg_fullname, "-")
+        Approve As Button:
+          Text: ="Approve"
+          OnSelect: =Set(
+            locAprvResp,
+            PA_Approvals_Start.Run(ThisItem.bkg_transactionid, "Approve", User().FullName)
+          );
+          Visible: =true
+        Reject As Button:
+          Text: ="Reject"
+          OnSelect: =Set(
+            locAprvResp,
+            PA_Approvals_Start.Run(ThisItem.bkg_transactionid, "Reject", User().FullName)
+          );
+    Pager As groupContainer.horizontalAutoLayoutContainer:
+      Items:
+        Prev As Button:
+          Text: ="Prev"
+          DisplayMode: =If(locAprvPage>0, DisplayMode.Edit, DisplayMode.Disabled)
+          OnSelect: =Set(locAprvPage, Max(0, locAprvPage-1))
+        Next As Button:
+          Text: ="Next"
+          OnSelect: =Set(locAprvPage, locAprvPage+1)

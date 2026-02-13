@@ -1,0 +1,34 @@
+
+// Paste into a Screen (CaseTimeline)
+CaseTimeline As screen:
+  OnVisible: =If(IsBlank(Param("caseId")), Notify("No case id.", NotificationType.Error), Set(locCaseId, GUID(Param("caseId"))))
+  Items:
+    TopNav As NavBar:
+      Width: =Parent.Width
+    Header As Label:
+      Text: ="Case Timeline"
+      Size: =20
+      Weight: =FontWeight.Semibold
+    Details As Form:
+      DataSource: =bkg_case
+      Item: =LookUp(bkg_case, bkg_caseid = locCaseId)
+      DisplayMode: =DisplayMode.View
+      Fields:
+        Title As DataCardValue:
+          DataField: ="bkg_title"
+        Status As DataCardValue:
+          DataField: ="bkg_status"
+        Priority As DataCardValue:
+          DataField: ="bkg_priority"
+    Timeline As Gallery:
+      Y: =Details.Y + Details.Height + 8
+      Items: =SortByColumns(Filter(Notes, Regarding = locCaseId), "CreatedOn", Descending)
+      TemplateSize: =88
+      Fields:
+        NoteTitle As Label:
+          Text: =ThisItem.Title
+          Weight: =FontWeight.Semibold
+        NoteText As Label:
+          Text: =ThisItem.NoteText
+        When As Label:
+          Text: =Text(ThisItem.CreatedOn, "[$-en-US]dd-MMM-yyyy hh:mm")

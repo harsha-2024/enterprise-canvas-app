@@ -1,0 +1,36 @@
+
+// Paste into a Screen (Admin)
+Admin As screen:
+  OnVisible: =Concurrent(
+    If(IsEmpty(colFlags), ClearCollect(colFlags, bkg_featureflag)),
+    Set(locFlagFilter, "All")
+  )
+  Items:
+    TopNav As NavBar:
+      Width: =Parent.Width
+    AddFlag As Button:
+      Text: ="Add Flag"
+      OnSelect: =Set(locShowModal, true); Set(locModalTitle, "Add Feature Flag"); Set(locModalOk, NewFlagOk);
+    Flags As Gallery:
+      Items: =If(locFlagFilter="All", bkg_featureflag, Filter(bkg_featureflag, bkg_enabled = (locFlagFilter="Enabled")))
+      TemplateSize: =72
+      Fields:
+        Name As Label:
+          Text: =ThisItem.bkg_name
+          Weight: =FontWeight.Semibold
+        Desc As Label:
+          Text: =ThisItem.bkg_description
+        Toggle As Toggle:
+          Default: =ThisItem.bkg_enabled
+          OnCheck: =Patch(bkg_featureflag, ThisItem, { bkg_enabled: true })
+          OnUncheck: =Patch(bkg_featureflag, ThisItem, { bkg_enabled: false })
+    Modal As ModalDialog:
+      Visible: =locShowModal
+
+// Callback used by modal OK button
+// Place in App.OnStart or screen formulas
+NewFlagOk:
+=If(!IsBlank(locNewFlagName),
+    Patch(bkg_featureflag, Defaults(bkg_featureflag), { bkg_name: locNewFlagName, bkg_description: locNewFlagDesc, bkg_enabled: false });
+    Set(locShowModal,false)
+)
